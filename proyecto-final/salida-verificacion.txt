@@ -1,0 +1,100 @@
+
+=== docker compose ps
+NAME                 IMAGE                COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+biblioteca_adminer   adminer:latest       "entrypoint.sh docke…"   adminer   56 seconds ago   Up 39 seconds             0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp
+biblioteca_api       biblioteca-api-api   "./biblioteca-api"       api       56 seconds ago   Up 39 seconds             0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+biblioteca_mysql     mysql:8.0            "docker-entrypoint.s…"   mysql     56 seconds ago   Up 55 seconds (healthy)   0.0.0.0:3306->3306/tcp, [::]:3306->3306/tcp
+
+=== GET /health
+{"status":"ok"}
+[HTTP 200]
+=== GET /ping
+{"message":"pong"}
+[HTTP 200]
+=== POST /api/auth/register (admin candidato)
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTU3MTQ3MDgsInJvbGUiOiJzdHVkZW50IiwidXNlcl9pZCI6MX0.DXI4XHvGqH6huMDoL4p0pK7qNNM5IMzI7raOUayKqek","user":{"id":1,"name":"Admin","email":"admin1795628306@test.com","role":"student","created_at":"0001-01-01T00:00:00Z"}}
+[HTTP 201]
+
+=== Promover a admin vía SQL
+ok
+
+=== POST /api/auth/login (admin)
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTU3MTQ3MDgsInJvbGUiOiJhZG1pbiIsInVzZXJfaWQiOjF9.Bro8eVI0IvGl6HQmoEMk3bYNUTHX_NnrglHC-Sz-c6I","user":{"id":1,"name":"Admin","email":"admin1795628306@test.com","role":"admin","created_at":"2026-11-25T17:38:28Z"}}
+[HTTP 200]
+
+=== POST /api/auth/register (estudiante 1)
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTU3MTQ3MDksInJvbGUiOiJzdHVkZW50IiwidXNlcl9pZCI6Mn0.rg37JPQ3x3HEYGoeX_FMSmKQC2W5LXCs4WnEl76zRN0","user":{"id":2,"name":"Est Uno","email":"est1795628306@test.com","role":"student","created_at":"0001-01-01T00:00:00Z"}}
+[HTTP 201]
+
+=== POST /api/auth/register (estudiante 2)
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTU3MTQ3MDksInJvbGUiOiJzdHVkZW50IiwidXNlcl9pZCI6M30.Q2JfQrLDHrlRm72A38fjlF3KqBFtcFkX7xz605rj6zQ","user":{"id":3,"name":"Est Dos","email":"est21795628306@test.com","role":"student","created_at":"0001-01-01T00:00:00Z"}}
+[HTTP 201]
+
+=== POST /api/auth/login (estudiante 1)
+{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTU3MTQ3MDksInJvbGUiOiJzdHVkZW50IiwidXNlcl9pZCI6Mn0.rg37JPQ3x3HEYGoeX_FMSmKQC2W5LXCs4WnEl76zRN0","user":{"id":2,"name":"Est Uno","email":"est1795628306@test.com","role":"student","created_at":"2026-11-25T17:38:29Z"}}
+[HTTP 200]
+######## LIBROS (nada existente roto) ########
+
+=== GET /api/books
+[{"id":1,"title":"Cien años de soledad","author":"Gabriel García Márquez","isbn":"9780307474728","category":"Novela","cover_url":"","total_copies":3,"available_copies":3,"created_at":"2026-11-25T17:37:40Z"},{"id":2,"title":"Clean Code","author":"Robert C. Martin","isbn":"9780132350884","category":"Tecnología","cover_url":"","total_copies":2,"available_copies":2,"created_at":"2026-11-25T17:37:4
+
+=== POST /api/loans (libro 1)
+{"id":1,"user_id":2,"book_id":1,"loaned_at":"2026-11-25T17:38:29Z","due_at":"2026-12-09T17:38:30Z","status":"active"}
+[HTTP 201]
+
+=== GET /api/loans/me
+[{"id":1,"user_id":2,"book_id":1,"loaned_at":"2026-11-25T17:38:29Z","due_at":"2026-12-09T17:38:30Z","status":"active","book_title":"Cien años de soledad","book_author":"Gabriel García Márquez"}]
+[HTTP 200]
+=== PUT /api/loans/1/return
+{"message":"libro devuelto correctamente"}
+[HTTP 200]
+######## LAPTOPS (nuevo) ########
+
+=== POST /api/laptops (admin) -> 201
+{"id":4,"brand":"Asus","model":"VivoBook","serial_number":"ASU-1795628306","status":"available","created_at":"0001-01-01T00:00:00Z"}
+[HTTP 201]
+
+=== POST /api/laptops serial repetido -> 409
+{"error":"ya existe una laptop con ese número de serie"}
+[HTTP 409]
+=== POST /api/laptops como estudiante -> 403
+{"error":"se requiere rol de administrador"}
+[HTTP 403]
+=== POST /api/laptops sin token -> 401
+{"error":"token no proporcionado"}
+[HTTP 401]
+=== GET /api/laptops
+[{"id":4,"brand":"Asus","model":"VivoBook","serial_number":"ASU-1795628306","status":"available","created_at":"2026-11-25T17:38:30Z"},{"id":2,"brand":"Dell","model":"Latitude 3420","serial_number":"DEL-0001","status":"available","created_at":"2026-11-25T17:37:40Z"},{"id":3,"brand":"HP","model":"ProBook 450 G9","serial_number":"HP-0001","status":"available","created_at":"2026-11-25T17:37:40Z"},{"id":1,"brand":"Lenovo","model":"ThinkPad E14","serial_number":"LNV-0001","status":"available","created_at":"2026-11-25T17:37:40Z"}]
+[HTTP 200]
+=== GET /api/laptops?status=available
+[{"id":4,"brand":"Asus","model":"VivoBook","serial_number":"ASU-1795628306","status":"available","created_at":"2026-11-25T17:38:30Z"},{"id":2,"brand":"Dell","model":"Latitude 3420","serial_number":"DEL-0001","status":"available","created_at":"2026-11-25T17:37:40Z"},{"id":3,"brand":"HP","model":"ProBook 450 G9","serial_number":"HP-0001","status":"available","created_at":"2026-11-25T17:37:40Z"},{"id":1,"brand":"Lenovo","model":"ThinkPad E14","serial_number":"LNV-0001","status":"available","created_at":"2026-11-25T17:37:40Z"}]
+[HTTP 200]
+=== POST /api/laptop-loans (prestar) -> 201
+{"id":1,"user_id":2,"laptop_id":4,"loaned_at":"2026-11-25T17:38:31Z","due_at":"2026-12-02T17:38:31Z","status":"active"}
+[HTTP 201]
+
+=== Prestar la MISMA laptop con otro usuario -> 409
+{"error":"la laptop no está disponible"}
+[HTTP 409]
+=== Mismo usuario pide OTRA laptop -> 409
+{"error":"ya tienes una laptop prestada; devuélvela antes de pedir otra"}
+[HTTP 409]
+=== Laptop inexistente -> 404
+{"error":"laptop no encontrada"}
+[HTTP 404]
+=== GET /api/laptop-loans/me
+[{"id":1,"user_id":2,"laptop_id":4,"loaned_at":"2026-11-25T17:38:31Z","due_at":"2026-12-02T17:38:31Z","status":"active","laptop_brand":"Asus","laptop_model":"VivoBook","laptop_serial":"ASU-1795628306"}]
+[HTTP 200]
+=== Devolver con otro usuario -> 403
+{"error":"no puedes devolver el préstamo de otro usuario"}
+[HTTP 403]
+=== PUT /api/laptop-loans/1/return -> 200
+{"message":"laptop devuelta correctamente"}
+[HTTP 200]
+=== Devolver otra vez -> 409
+{"error":"este préstamo de laptop ya fue devuelto"}
+[HTTP 409]
+=== Prestar de nuevo la laptop devuelta -> 201
+{"id":2,"user_id":3,"laptop_id":4,"loaned_at":"2026-11-25T17:38:31Z","due_at":"2026-12-02T17:38:32Z","status":"active"}
+[HTTP 201]
+FIN

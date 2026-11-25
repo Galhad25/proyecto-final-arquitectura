@@ -14,6 +14,8 @@ func SetupRoutes(
 	authHandler *AuthHandler,
 	bookHandler *BookHandler,
 	loanHandler *LoanHandler,
+	laptopHandler *LaptopHandler,
+	laptopLoanHandler *LaptopLoanHandler,
 	jwtSecret string,
 ) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -47,6 +49,12 @@ func SetupRoutes(
 		protected.POST("/loans", loanHandler.Borrow)
 		protected.GET("/loans/me", loanHandler.MyLoans)
 		protected.PUT("/loans/:id/return", loanHandler.Return)
+
+		protected.GET("/laptops", laptopHandler.List)
+
+		protected.POST("/laptop-loans", laptopLoanHandler.Borrow)
+		protected.GET("/laptop-loans/me", laptopLoanHandler.MyLoans)
+		protected.PUT("/laptop-loans/:id/return", laptopLoanHandler.Return)
 	}
 
 	// Rutas exclusivas para administradores
@@ -57,5 +65,7 @@ func SetupRoutes(
 		admin.PUT("/books/:id", bookHandler.Update)
 		admin.DELETE("/books/:id", bookHandler.Delete)
 		admin.GET("/loans", loanHandler.AllLoans)
+
+		admin.POST("/laptops", laptopHandler.Create)
 	}
 }
