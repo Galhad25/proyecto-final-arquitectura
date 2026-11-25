@@ -8,7 +8,7 @@ docker compose up --build -d
 bash proyecto-final/verificar.sh | tee proyecto-final/salida-verificacion.txt
 ```
 
-La salida completa queda en [`salida-verificacion.txt`](salida-verificacion.txt). Pega abajo los fragmentos relevantes de cada punto (o capturas).
+
 
 ## Checklist
 
